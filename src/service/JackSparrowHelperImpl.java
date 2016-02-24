@@ -36,20 +36,19 @@ public class JackSparrowHelperImpl implements JackSparrowHelper {
     }
 
     private Purchase decidePurchase(int needGallons, List<Commodity> commodities) {
-        List<Commodity> collect = commodities.stream()
+        List<Commodity> cmdtsLeft = commodities.stream()
                 .filter(c -> c.getAmountLeft() != 0)
                 .collect(toList());
-        for (Commodity commodity : collect) {
-            Purchase purchase = bestForComdty(commodity, needGallons);
+        for (Commodity commodity : cmdtsLeft) {
+            Purchase purchase = bestForCommodity(commodity, needGallons);
             if (purchase != null) return purchase;
         }
         return null;
     }
 
 
-    private Purchase bestForComdty(Commodity cmdty, int needGallons) {
-        int amountLeft = cmdty.getAmountLeft();
-        int canTake = min(amountLeft, needGallons);
+    private Purchase bestForCommodity(Commodity cmdty, int needGallons) {
+        int canTake = min(cmdty.getAmountLeft(), needGallons);
         int canTakeByServings = (canTake / cmdty.getServingSize()) * cmdty.getServingSize();
         if (canTake < cmdty.getMinSize() || canTakeByServings == 0) return null;
 
@@ -57,16 +56,7 @@ public class JackSparrowHelperImpl implements JackSparrowHelper {
         return new Purchase(cmdty.getSource(), canTakeByServings, cmdty.getAvgPrice());
     }
 
-    //todo : implement export from csv
     private List<Commodity> getCommodities(String pathToPrices) {
-        /*Arrays.asList(
-                new Commodity("M", 50, 50.0, 1, 1),
-                new Commodity("S", 60, 52.0, 1, 1),
-                new Commodity("B", 200, 55.0, 1, 1),
-                new Commodity("D", 100, 51.0, 100, 100),
-                new Commodity("H", 300, 50.5, 200, 100),
-                new Commodity("K", 200, 54.0, 200, 200)
-        );*/
         return parser.parseFile(pathToPrices)
                 .stream().sorted(comparing(Commodity::getAvgPrice)).collect(toList());
     }
