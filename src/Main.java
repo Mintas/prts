@@ -1,3 +1,4 @@
+import model.Purchase;
 import model.Purchases;
 import service.JackSparrowHelperImpl;
 
@@ -11,5 +12,6 @@ public class Main {
 
         System.out.println(abr.calculateAveragePrice());
         abr.getPurchases().forEach(p -> System.out.println(p.getTotalPrice()));
+        System.out.println(abr.getPurchases().stream().mapToDouble(Purchase::getTotalPrice).sum());
     }
 }

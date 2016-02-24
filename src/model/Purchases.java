@@ -1,15 +1,14 @@
 package model;
 
-import model.Purchase;
-
 import java.util.Set;
 
 public class Purchases {
     private final int requestedNumberOfGallons;
-    private Set<Purchase> purchases;
+    private final Set<Purchase> purchases;
 
-    public Purchases(int requestedNumberOfGallons) {
+    public Purchases(int requestedNumberOfGallons, Set<Purchase> purchases) {
         this.requestedNumberOfGallons = requestedNumberOfGallons;
+        this.purchases = purchases;
     }
 
     public Double calculateAveragePrice() {
@@ -28,9 +27,5 @@ public class Purchases {
 
     public Set<Purchase> getPurchases() {
         return purchases;
-    }
-
-    public void setPurchases(Set<Purchase> purchases) {
-        this.purchases = purchases;
     }
 }
