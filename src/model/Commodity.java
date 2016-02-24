@@ -7,15 +7,15 @@ public class Commodity {
     private final String source;
     private int amountLeft;
     private final double avgPrice;
-    private final int minCount;
-    private final int servingCount;
+    private final int minSize;
+    private final int servingSize;
 
-    public Commodity(String source, int amount, double avgPrice, int minCount, int servingCount) {
+    public Commodity(String source, int amount, double avgPrice, int minSize, int servingSize) {
         this.source = source;
         this.amountLeft = amount;
         this.avgPrice = avgPrice;
-        this.minCount = minCount;
-        this.servingCount = servingCount;
+        this.minSize = minSize;
+        this.servingSize = servingSize;
     }
 
     public String getSource() {
@@ -34,12 +34,12 @@ public class Commodity {
         return avgPrice;
     }
 
-    public int getMinCount() {
-        return minCount;
+    public int getMinSize() {
+        return minSize;
     }
 
-    public int getServingCount() {
-        return servingCount;
+    public int getServingSize() {
+        return servingSize;
     }
 
 }

@@ -1,22 +1,31 @@
 package service;
 
+import excel.CommodityParser;
 import model.Commodity;
 import model.Purchase;
 import model.Purchases;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
-import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 public class JackSparrowHelperImpl implements JackSparrowHelper {
+    private final CommodityParser parser;
+
+    public JackSparrowHelperImpl(CommodityParser parser) {
+        this.parser = parser;
+    }
+
     @Override
     public Purchases helpJackSparrow(String pathToPrices, int numberOfGallons) {
         List<Commodity> commodities = getCommodities(pathToPrices);
 
         int gotGallons = 0;
-        Set<Purchase> purchases = new HashSet<>();
+        Set<Purchase> purchases = new LinkedHashSet<>();
         while (gotGallons < numberOfGallons) {
             Purchase purchase = decidePurchase(numberOfGallons - gotGallons, commodities);
             purchases.add(purchase);
@@ -40,23 +49,25 @@ public class JackSparrowHelperImpl implements JackSparrowHelper {
 
     private Purchase bestForComdty(Commodity cmdty, int needGallons) {
         int amountLeft = cmdty.getAmountLeft();
-        int canTake = Math.min(amountLeft, needGallons);
-        int canTakeServings = canTake / cmdty.getServingCount();
-        if (canTake < cmdty.getMinCount() || canTakeServings == 0) return null;
+        int canTake = min(amountLeft, needGallons);
+        int canTakeByServings = (canTake / cmdty.getServingSize()) * cmdty.getServingSize();
+        if (canTake < cmdty.getMinSize() || canTakeByServings == 0) return null;
 
-        cmdty.decreaseAmount(canTake);
-        return new Purchase(cmdty.getSource(), canTake, cmdty.getAvgPrice());
+        cmdty.decreaseAmount(canTakeByServings);
+        return new Purchase(cmdty.getSource(), canTakeByServings, cmdty.getAvgPrice());
     }
 
     //todo : implement export from csv
     private List<Commodity> getCommodities(String pathToPrices) {
-        return Arrays.asList(
+        /*Arrays.asList(
                 new Commodity("M", 50, 50.0, 1, 1),
                 new Commodity("S", 60, 52.0, 1, 1),
                 new Commodity("B", 200, 55.0, 1, 1),
                 new Commodity("D", 100, 51.0, 100, 100),
                 new Commodity("H", 300, 50.5, 200, 100),
                 new Commodity("K", 200, 54.0, 200, 200)
-        ).stream().sorted(comparing(Commodity::getAvgPrice)).collect(toList());
+        );*/
+        return parser.parseFile(pathToPrices)
+                .stream().sorted(comparing(Commodity::getAvgPrice)).collect(toList());
     }
 }
