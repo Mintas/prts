@@ -5,21 +5,31 @@ package model;
  */
 public class Commodity {
     private final String source;
+    private final int totalAmount;
     private int amountLeft;
     private final double avgPrice;
     private final int minSize;
     private final int servingSize;
 
-    public Commodity(String source, int amount, double avgPrice, int minSize, int servingSize) {
+    private Commodity(String source, int totalAmount, int amount, double avgPrice, int minSize, int servingSize) {
         this.source = source;
         this.amountLeft = amount;
+        this.totalAmount = totalAmount;
         this.avgPrice = avgPrice;
         this.minSize = minSize;
         this.servingSize = servingSize;
     }
 
+    public static Commodity init(String source, int amount, double avgPrice, int minSize, int servingSize) {
+        return new Commodity(source, amount, amount, avgPrice, minSize, servingSize);
+    }
+
     public String getSource() {
         return source;
+    }
+
+    public int getTotalAmount() {
+        return totalAmount;
     }
 
     public int getAmountLeft() {

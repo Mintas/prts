@@ -13,26 +13,22 @@ import static java.lang.Math.min;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
-public class JackSparrowHelperImpl implements JackSparrowHelper {
-    private final CommodityParser parser;
-
-    public JackSparrowHelperImpl(CommodityParser parser) {
-        this.parser = parser;
+@Deprecated
+public class JackSparrowHelperGreedy extends AbstractJackSparrowHelper {
+    public JackSparrowHelperGreedy(CommodityParser parser) {
+        super(parser);
     }
 
     @Override
-    public Purchases helpJackSparrow(String pathToPrices, int numberOfGallons) {
-        List<Commodity> commodities = getCommodities(pathToPrices);
-
+    protected Set<Purchase> getPurchases(int numberOfGallons, List<Commodity> commodities) {
         int gotGallons = 0;
         Set<Purchase> purchases = new LinkedHashSet<>();
         while (gotGallons < numberOfGallons) {
             Purchase purchase = decidePurchase(numberOfGallons - gotGallons, commodities);
             purchases.add(purchase);
-            gotGallons+=purchase.getNumberOfGallons();
+            gotGallons += purchase.getNumberOfGallons();
         }
-
-        return new Purchases(numberOfGallons, purchases);
+        return purchases;
     }
 
     private Purchase decidePurchase(int needGallons, List<Commodity> commodities) {
@@ -46,7 +42,6 @@ public class JackSparrowHelperImpl implements JackSparrowHelper {
         return null;
     }
 
-
     private Purchase bestForCommodity(Commodity cmdty, int needGallons) {
         int canTake = min(cmdty.getAmountLeft(), needGallons);
         int canTakeByServings = (canTake / cmdty.getServingSize()) * cmdty.getServingSize();
@@ -54,10 +49,5 @@ public class JackSparrowHelperImpl implements JackSparrowHelper {
 
         cmdty.decreaseAmount(canTakeByServings);
         return new Purchase(cmdty.getSource(), canTakeByServings, cmdty.getAvgPrice());
-    }
-
-    private List<Commodity> getCommodities(String pathToPrices) {
-        return parser.parseFile(pathToPrices)
-                .stream().sorted(comparing(Commodity::getAvgPrice)).collect(toList());
     }
 }
