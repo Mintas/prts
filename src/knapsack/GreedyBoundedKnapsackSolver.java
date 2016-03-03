@@ -48,14 +48,19 @@ public class GreedyBoundedKnapsackSolver implements BoundedKnapsackSolver {
 
     private Purchase bestForCommodity(Commodity cmdty, int needGallons, boolean min) {
         int canTake = min(cmdty.getAmountLeft(), needGallons);
+        int canTakeByServings = getCanTakeByServings(cmdty, canTake, min);
+        if (canTakeByServings == 0) return null;
+
+        cmdty.decreaseAmount(canTakeByServings);
+        return new Purchase(cmdty.getSource(), canTakeByServings, cmdty.getAvgPrice());
+    }
+
+    private int getCanTakeByServings(Commodity cmdty, int canTake, boolean min) {
         int canTakeByServings = (canTake / cmdty.getServingSize()) * cmdty.getServingSize();
 
         if ((min && canTake < cmdty.getMinSize())) {
             canTakeByServings = cmdty.getAmountLeft()>=cmdty.getMinSize() ? cmdty.getMinSize() : canTakeByServings;
         }
-        if (canTakeByServings == 0) return null;
-
-        cmdty.decreaseAmount(canTakeByServings);
-        return new Purchase(cmdty.getSource(), canTakeByServings, cmdty.getAvgPrice());
+        return canTakeByServings;
     }
 }

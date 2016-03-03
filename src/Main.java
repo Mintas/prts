@@ -24,7 +24,6 @@ public class Main {
 
         System.out.println(abr.calculateAveragePrice() + "  REAL AVG: " + getAvg(abr));
         System.out.println("amount: " + getGallons(abr));
-        //abr.getPurchases().forEach(p -> System.out.println(p.getTotalPrice()));
         System.out.println("TOTAL is: " + abr.getPurchases().stream().mapToDouble(Purchase::getTotalPrice).sum());
     }
 
