@@ -56,10 +56,13 @@ public class GreedyBoundedKnapsackSolver implements BoundedKnapsackSolver {
     }
 
     private int getCanTakeByServings(Commodity cmdty, int canTake, boolean min) {
-        int canTakeByServings = (canTake / cmdty.getServingSize()) * cmdty.getServingSize();
+        int servingSize = cmdty.getServingSize();
+        int canTakeByServings = (canTake / servingSize) * servingSize;
 
-        if ((min && canTake < cmdty.getMinSize())) {
-            canTakeByServings = cmdty.getAmountLeft()>=cmdty.getMinSize() ? cmdty.getMinSize() : canTakeByServings;
+        if (min && canTake < cmdty.getMinSize()) {
+            canTakeByServings = cmdty.getAmountLeft()>=cmdty.getMinSize() ? cmdty.getMinSize()
+                    : (canTake < servingSize && cmdty.getAmountLeft() >= servingSize) ? servingSize
+                    : canTakeByServings;
         }
         return canTakeByServings;
     }
