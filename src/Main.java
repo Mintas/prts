@@ -20,7 +20,7 @@ public class Main {
     }
 
     private static void printSolution(JackSparrowHelper jackSparrowHelper) {
-        Purchases abr = jackSparrowHelper.helpJackSparrow("C:\\Users\\SBT-Kovalev-DA\\Downloads\\pirates\\sources.csv", 353);
+        Purchases abr = jackSparrowHelper.helpJackSparrow("C:\\Users\\SBT-Kovalev-DA\\Downloads\\pirates\\sources.csv", 222);
 
         System.out.println(abr.calculateAveragePrice() + "  REAL AVG: " + getAvg(abr));
         System.out.println("amount: " + getGallons(abr));
