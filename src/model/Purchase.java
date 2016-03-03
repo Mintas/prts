@@ -1,6 +1,7 @@
 package model;
 
 public class Purchase {
+    public static final Purchase HEAVY = new Purchase("", Integer.MAX_VALUE, Double.MAX_VALUE);
     private final String sourceName;
     private final Integer numberOfGallons;
     private final Double priceOfGallon;
