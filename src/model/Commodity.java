@@ -24,6 +24,10 @@ public class Commodity {
         return new Commodity(source, amount, amount, avgPrice, minSize, servingSize);
     }
 
+    public Commodity withAmountLeft(int amountLeft){
+        return new Commodity(this.source, this.totalAmount, amountLeft, this.avgPrice, this.minSize, this.servingSize);
+    }
+
     public String getSource() {
         return source;
     }

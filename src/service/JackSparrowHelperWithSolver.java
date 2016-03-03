@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 public class JackSparrowHelperWithSolver extends AbstractJackSparrowHelper {
     private final BoundedKnapsackSolver knapsackSolver;
@@ -22,23 +23,23 @@ public class JackSparrowHelperWithSolver extends AbstractJackSparrowHelper {
     @Override
     protected Set<Purchase> getPurchases(int numberOfGallons, List<Commodity> commodities) {
         int knapsackSize = getKnapsackSize(commodities, numberOfGallons);
-        Set<Purchase> excludePurchases = fillKnapsack(knapsackSize, commodities);
-        return findNeededPurchases(commodities, excludePurchases);
+        Set<Purchase> excludePurchases = knapsackSolver.solveKnapsack(knapsackSize, commodities);
+        List<Commodity> neededCommodities = findNeededCommodities(commodities, excludePurchases);
+        return knapsackSolver.solveKnapsack(numberOfGallons, neededCommodities, true);
     }
 
-    private Set<Purchase> findNeededPurchases(List<Commodity> commodities, Set<Purchase> excludePurchases) {
+    private List<Commodity> findNeededCommodities(List<Commodity> commodities, Set<Purchase> excludePurchases) {
         return commodities.stream()
-                .map(c -> findNeeded(c, excludePurchases))
-                .filter(p -> p.getNumberOfGallons()!=0)
-                .collect(toSet());
+                .map(c -> findNeededC(c, excludePurchases))
+                .filter(c -> c.getAmountLeft() != 0)
+                .sorted(comparing(Commodity::getAvgPrice))
+                .collect(toList());
     }
 
-    private Purchase findNeeded(Commodity commodity, Set<Purchase> excludePurchases) {
+    private Commodity findNeededC(Commodity commodity, Set<Purchase> excludePurchases) {
         Optional<Purchase> excludeFromCmdty = excludePurchases.stream()
                 .filter(p -> commodity.getSource().equals(p.getSourceName())).findFirst();
-        return new Purchase(commodity.getSource(),
-                getAmount(commodity, excludeFromCmdty),
-                commodity.getAvgPrice());
+        return commodity.withAmountLeft(getAmount(commodity, excludeFromCmdty));
     }
 
     private Integer getAmount(Commodity commodity, Optional<Purchase> excludeFromCmdty) {
@@ -53,7 +54,4 @@ public class JackSparrowHelperWithSolver extends AbstractJackSparrowHelper {
         return commodities.stream().mapToInt(Commodity::getAmountLeft).sum();
     }
 
-    private Set<Purchase> fillKnapsack(int knapsackSize, List<Commodity> commodities) {
-        return knapsackSolver.solveKnapsack(knapsackSize, commodities);
-    }
 }

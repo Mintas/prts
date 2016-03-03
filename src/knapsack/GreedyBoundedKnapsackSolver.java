@@ -16,14 +16,14 @@ import static java.util.stream.Collectors.toList;
  */
 public class GreedyBoundedKnapsackSolver implements BoundedKnapsackSolver {
     @Override
-    public Set<Purchase> solveKnapsack(int capacity, List<Commodity> commodities) {
+    public Set<Purchase> solveKnapsack(int capacity, List<Commodity> commodities, boolean minPrice) {
         List<Commodity> cmdtDescendingPrice = commodities.stream().sorted(comparing(Commodity::getAvgPrice).reversed()).collect(toList());
 
         int gotWeight = 0;
         Set<Purchase> purchases = new LinkedHashSet<>();
         while (gotWeight < capacity) {
-            Purchase purchase = decidePurchase(capacity - gotWeight, cmdtDescendingPrice);
-            if (purchase == null || gotWeight + purchase.getNumberOfGallons() > capacity) break;
+            Purchase purchase = decidePurchase(capacity - gotWeight, cmdtDescendingPrice, minPrice);
+            if (stopCase(purchase, gotWeight, capacity, minPrice)) break;
 
             purchases.add(purchase);
             gotWeight += purchase.getNumberOfGallons();
@@ -31,21 +31,29 @@ public class GreedyBoundedKnapsackSolver implements BoundedKnapsackSolver {
         return purchases;
     }
 
-    private Purchase decidePurchase(int needGallons, List<Commodity> commodities) {
+    private boolean stopCase(Purchase purchase, int gotWeight, int capacity, boolean minPrice) {
+        return purchase == null || (!minPrice && gotWeight + purchase.getNumberOfGallons() > capacity);
+    }
+
+    private Purchase decidePurchase(int needGallons, List<Commodity> commodities, boolean minPrice) {
         List<Commodity> cmdtsLeft = commodities.stream()
                 .filter(c -> c.getAmountLeft() != 0)
                 .collect(toList());
         for (Commodity commodity : cmdtsLeft) {
-            Purchase purchase = bestForCommodity(commodity, needGallons);
+            Purchase purchase = bestForCommodity(commodity, needGallons, minPrice);
             if (purchase != null) return purchase;
         }
         return null;
     }
 
-    private Purchase bestForCommodity(Commodity cmdty, int needGallons) {
+    private Purchase bestForCommodity(Commodity cmdty, int needGallons, boolean min) {
         int canTake = min(cmdty.getAmountLeft(), needGallons);
         int canTakeByServings = (canTake / cmdty.getServingSize()) * cmdty.getServingSize();
-        if (canTake < cmdty.getMinSize() || canTakeByServings == 0) return null;
+
+        if ((min && canTake < cmdty.getMinSize())) {
+            canTakeByServings = cmdty.getAmountLeft()>=cmdty.getMinSize() ? cmdty.getMinSize() : canTakeByServings;
+        }
+        if (canTakeByServings == 0) return null;
 
         cmdty.decreaseAmount(canTakeByServings);
         return new Purchase(cmdty.getSource(), canTakeByServings, cmdty.getAvgPrice());
